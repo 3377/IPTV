@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2025-12-27 06:51:06,http://php.jdshipin.com:8880/TVOD/iptv.php?id=rthk33
+2025-12-27 18:52:57,http://php.jdshipin.com:8880/TVOD/iptv.php?id=rthk33
 
 📺央视频道,#genre#
 CCTV-1,http://php.jdshipin.com:8880/TVOD/iptv.php?id=rthk33
@@ -764,6 +764,7 @@ CETV4,http://gslbmgsplive.miguvideo.com/migu/kailu/cetv4/50/20240709/index.m3u8?
 上海都市,https://live.lalifeier.eu.org/kankanews/shds.m3u8?t=1745774515&key=78fc07d4bc09243dc7ad6478f495b1ca
 上海都市,https://migu.188766.xyz/?migutoken=25fca555af4be46a9744edda1dbd024d&id=ds&type=sz
 上海都市,http://bp-livetytv.bestv.cn/ch/bestvdspd.m3u8
+上海都市,http://www.zhch682022.cn:35455/itv/5000000010000018926.m3u8?cdn=bestzb
 东方影视,http://php.jdshipin.com:8880/itv6.php?cid=bestzb&id=5000000010000032212
 东方影视,http://gat.bkpcp.top/ymg.php?id=shys
 东方影视,https://www.freetv.top/migu/617290047.m3u8?migutoken=86c02ad0875d5cc49d77bcc8bdb628f2c9d508ffc323b964a03c8f92dde4afafa0345cf5a8fefbdf915c748e3d11c6c18e27ae1e21a609cec31a45e6c437db26a7a243625f9cf35c271171a22c
