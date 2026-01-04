@@ -12,7 +12,8 @@ from utils.channel import (
 from utils.config import config
 from utils.driver.setup import setup_driver
 from utils.driver.tools import search_submit
-from utils.requests.tools import get_soup_requests, close_session
+from utils.i18n import t
+from utils.requests.tools import get_soup_requests
 from utils.retry import (
     retry_func,
     find_clickable_element_with_retry,
@@ -44,31 +45,33 @@ async def get_channels_by_online_search(names, callback=None):
     def process_channel_by_online_search(name):
         info_list = []
         driver = None
+        page_soup = None
         try:
             if open_driver:
                 driver = setup_driver()
                 try:
                     retry_func(
-                        lambda: driver.get(pageUrl), name=f"online search:{name}"
+                        lambda: driver.get(pageUrl),
+                        name=t("msg.mode_search_name").format(mode=t("name.online_search"), name=name)
                     )
                 except Exception as e:
+                    print(e)
                     driver.close()
                     driver.quit()
                     driver = setup_driver()
                     driver.get(pageUrl)
                 search_submit(driver, name)
             else:
-                page_soup = None
                 request_url = f"{pageUrl}?s={name}"
                 try:
                     page_soup = retry_func(
                         lambda: get_soup_requests(request_url),
-                        name=f"online search:{name}",
+                        name=t("msg.mode_search_name").format(mode=t("name.online_search"), name=name)
                     )
                 except Exception as e:
-                    page_soup = get_soup_requests(request_url)
+                    print(e)
                 if not page_soup:
-                    print(f"{name}:Request fail.")
+                    print(t("msg.request_failed").format(name=name))
                     return
             retry_limit = 3
             for page in range(1, page_num + 1):
@@ -95,7 +98,8 @@ async def get_channels_by_online_search(names, callback=None):
                                 request_url = f"{pageUrl}?s={name}&page={page}"
                                 page_soup = retry_func(
                                     lambda: get_soup_requests(request_url),
-                                    name=f"online search:{name}, page:{page}",
+                                    name=t("msg.mode_search_name_page").format(mode=t("name.online_search"), name=name,
+                                                                               page=page)
                                 )
                         soup = (
                             get_soup(driver.page_source) if open_driver else page_soup
@@ -109,10 +113,10 @@ async def get_channels_by_online_search(names, callback=None):
                                 if open_driver
                                 else get_results_from_soup_requests(soup, name)
                             )
-                            print(name, "page:", page, "results num:", len(results))
+                            print(t("msg.name_page_results_number").format(name=name, page=page, number=len(results)))
                             if len(results) == 0:
                                 print(
-                                    f"{name}:No results found, refreshing page and retrying..."
+                                    t("msg.name_no_results_refresh_retrying").format(name=name)
                                 )
                                 if open_driver:
                                     driver.refresh()
@@ -146,19 +150,19 @@ async def get_channels_by_online_search(names, callback=None):
                             break
                         else:
                             print(
-                                f"{name}:No page soup found, refreshing page and retrying..."
+                                t("msg.name_no_elements_refresh_retrying").format(name=name)
                             )
                             if open_driver:
                                 driver.refresh()
                             retries += 1
                             continue
                     except Exception as e:
-                        print(f"{name}:Error on page {page}: {e}")
+                        print(t("msg.name_page_error_info").format(name=name, page=page, info=e))
                         break
                 if retries == retry_limit:
-                    print(f"{name}:Reached retry limit, moving to next page")
+                    print(t("msg.reach_retry_limit_jump_next").format(name=name))
         except Exception as e:
-            print(f"{name}:Error on search: {e}")
+            print(t("msg.name_search_error_info").format(name=name, info=e))
             pass
         finally:
             if driver:
@@ -167,15 +171,19 @@ async def get_channels_by_online_search(names, callback=None):
             pbar.update()
             if callback:
                 callback(
-                    f"正在进行线上查询, 剩余{names_len - pbar.n}个频道待查询, 预计剩余时间: {get_pbar_remaining(n=pbar.n, total=pbar.total, start_time=start_time)}",
+                    t("msg.progress_desc").format(name=t("name.online_search"),
+                                                  remaining_total=names_len - pbar.n,
+                                                  item_name=t("name.channel"),
+                                                  remaining_time=get_pbar_remaining(n=pbar.n, total=pbar.total,
+                                                                                    start_time=start_time)),
                     int((pbar.n / names_len) * 100),
                 )
             return {"name": format_channel_name(name), "data": info_list}
 
     names_len = len(names)
-    pbar = tqdm_asyncio(total=names_len, desc="Online search")
+    pbar = tqdm_asyncio(total=names_len, desc=t("pbar.name_search").format(name=t("name.online_search")))
     if callback:
-        callback(f"正在进行线上查询, 共{names_len}个频道", 0)
+        callback(f"{t("pbar.getting_name").format(name=t("name.online_search"))}", 0)
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = [
             executor.submit(process_channel_by_online_search, name) for name in names
@@ -186,7 +194,5 @@ async def get_channels_by_online_search(names, callback=None):
             data = result.get("data", [])
             if name:
                 channels[name] = data
-    if not open_driver:
-        close_session()
     pbar.close()
     return channels

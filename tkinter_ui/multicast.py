@@ -1,9 +1,10 @@
+import os
 import tkinter as tk
 from tkinter import ttk
-from utils.tools import resource_path
-from utils.config import config
+
 from select_combobox import SelectCombobox
-import os
+from utils.config import config
+from utils.tools import resource_path
 
 
 class MulticastUI:
@@ -72,15 +73,15 @@ class MulticastUI:
         self.region_list_label.pack(side=tk.LEFT, padx=4, pady=8)
         rtp_path = resource_path("config/rtp")
         regions = list(
-            {"全部"}.union(
+            {"all"}.union(
                 filename.rsplit(".", 1)[0].partition("_")[0]
                 for filename in os.listdir(rtp_path)
                 if filename.endswith(".txt") and "_" in filename
             )
         )
-        if "全部" in regions:
-            regions.remove("全部")
-        regions.insert(0, "全部")
+        if "all" in regions:
+            regions.remove("all")
+        regions.insert(0, "all")
         self.region_list_combo = SelectCombobox(
             frame_multicast_region_list,
             values=regions,

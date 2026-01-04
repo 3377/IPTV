@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from utils.config import config
-from select_combobox import SelectCombobox
+
 import updates.fofa.fofa_map as fofa_map
+from select_combobox import SelectCombobox
+from utils.config import config
 
 
 class HotelUI:
@@ -63,7 +64,7 @@ class HotelUI:
             frame_hotel_region_list, text="酒店地区:", width=9
         )
         self.region_list_label.pack(side=tk.LEFT, padx=4, pady=8)
-        regions = ["全部"] + list(getattr(fofa_map, "region_url").keys())
+        regions = ["all"] + list(getattr(fofa_map, "region_url").keys())
         self.region_list_combo = SelectCombobox(
             frame_hotel_region_list,
             values=regions,

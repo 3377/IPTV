@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+import webbrowser
 from tkinter import filedialog, messagebox, ttk
 
 import utils.constants as constants
@@ -91,6 +92,15 @@ class DefaultUI:
             command=self.update_open_update
         )
         self.open_update_checkbutton.pack(side=tk.LEFT, padx=4, pady=8)
+
+        self.update_interval_label = tk.Label(
+            frame_default_open_update_column1, text="更新间隔(小时):", width=12
+        )
+        self.update_interval_label.pack(side=tk.LEFT, padx=4, pady=8)
+        self.update_interval_entry = tk.Entry(frame_default_open_update_column1, width=8)
+        self.update_interval_entry.pack(side=tk.LEFT, padx=4, pady=8)
+        self.update_interval_entry.insert(0, config.update_interval)
+        self.update_interval_entry.bind("<KeyRelease>", self.update_interval)
 
         self.open_service_label = tk.Label(
             frame_default_open_update_column2, text="开启服务:", width=8
@@ -216,7 +226,7 @@ class DefaultUI:
         self.ipv_type_label.pack(side=tk.LEFT, padx=4, pady=8)
         self.ipv_type_combo = ttk.Combobox(frame_default_channel_column2, width=5)
         self.ipv_type_combo.pack(side=tk.LEFT, padx=4, pady=8)
-        self.ipv_type_combo["values"] = ("IPv4", "IPv6", "全部")
+        self.ipv_type_combo["values"] = ("IPv4", "IPv6", "all")
         if config.ipv_type == "ipv4":
             self.ipv_type_combo.current(0)
         elif config.ipv_type == "ipv6":
@@ -393,6 +403,35 @@ class DefaultUI:
         self.cdn_url_entry.insert(0, config.cdn_url)
         self.cdn_url_entry.bind("<KeyRelease>", self.update_cdn_url)
 
+        frame_channel_logo = tk.Frame(root)
+        frame_channel_logo.pack(fill=tk.X)
+        frame_channel_logo_column1 = tk.Frame(
+            frame_channel_logo
+        )
+        frame_channel_logo_column1.pack(side=tk.LEFT, fill=tk.Y)
+        frame_channel_logo_column2 = tk.Frame(
+            frame_channel_logo
+        )
+        frame_channel_logo_column2.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.logo_url_label = tk.Label(
+            frame_channel_logo_column1, text="台标库地址:", width=12
+        )
+        self.logo_url_label.pack(side=tk.LEFT, padx=4, pady=8)
+        self.logo_url_entry = tk.Entry(frame_channel_logo_column1, width=36)
+        self.logo_url_entry.pack(side=tk.LEFT, padx=4, pady=8)
+        self.logo_url_entry.insert(0, config.logo_url)
+        self.logo_url_entry.bind("<KeyRelease>", self.update_logo_url)
+
+        self.logo_type_label = tk.Label(
+            frame_channel_logo_column2, text="台标文件类型:", width=12
+        )
+        self.logo_type_label.pack(side=tk.LEFT, padx=4, pady=8)
+        self.logo_type_entry = tk.Entry(frame_channel_logo_column2, width=8)
+        self.logo_type_entry.pack(side=tk.LEFT, padx=4, pady=8)
+        self.logo_type_entry.insert(0, config.logo_type)
+        self.logo_type_entry.bind("<KeyRelease>", self.update_logo_type)
+
         frame_default_url_keywords = tk.Frame(root)
         frame_default_url_keywords.pack(fill=tk.X)
         frame_default_url_keywords_column1 = tk.Frame(frame_default_url_keywords)
@@ -410,6 +449,7 @@ class DefaultUI:
             command=self.edit_whitelist_file,
         )
         self.whitelist_file_button.pack(side=tk.LEFT, padx=4, pady=0)
+
         self.url_keywords_blacklist_label = tk.Label(
             frame_default_url_keywords_column2, text="黑名单:", width=12
         )
@@ -421,11 +461,43 @@ class DefaultUI:
         )
         self.blacklist_file_button.pack(side=tk.LEFT, padx=4, pady=0)
 
+        frame_channel_alias = tk.Frame(root)
+        frame_channel_alias.pack(fill=tk.X)
+        frame_channel_alias_column1 = tk.Frame(frame_channel_alias)
+        frame_channel_alias_column1.pack(side=tk.LEFT, fill=tk.Y)
+        frame_channel_alias_column2 = tk.Frame(frame_channel_alias)
+        frame_channel_alias_column2.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.channel_alias_label = tk.Label(
+            frame_channel_alias_column1, text="频道别名:", width=12
+        )
+        self.channel_alias_label.pack(side=tk.LEFT, padx=4, pady=8)
+        self.channel_alias_file_button = tk.ttk.Button(
+            frame_channel_alias_column1,
+            text="编辑",
+            command=self.edit_channel_alias_file,
+        )
+        self.channel_alias_file_button.pack(side=tk.LEFT, padx=4, pady=0)
+
+        self.rtmp_stat_label = tk.Label(
+            frame_channel_alias_column2, text="推流统计:", width=12
+        )
+        self.rtmp_stat_label.pack(side=tk.LEFT, padx=4, pady=8)
+        self.rtmp_stat_button = tk.ttk.Button(
+            frame_channel_alias_column2,
+            text="查看",
+            command=self.view_rtmp_stat,
+        )
+        self.rtmp_stat_button.pack(side=tk.LEFT, padx=4, pady=0)
+
     def update_open_update(self):
         config.set("Settings", "open_update", str(self.open_update_var.get()))
 
     def update_open_service(self):
         config.set("Settings", "open_service", str(self.open_update_var.get()))
+
+    def update_interval(self, event):
+        config.set("Settings", "update_interval", self.update_interval_entry.get())
 
     def update_app_port(self, event):
         config.set("Settings", "app_port", self.app_port_entry.get())
@@ -485,6 +557,12 @@ class DefaultUI:
     def update_cdn_url(self, event):
         config.set("Settings", "cdn_url", self.cdn_url_entry.get())
 
+    def update_logo_url(self, event):
+        config.set("Settings", "logo_url", self.logo_url_entry.get())
+
+    def update_logo_type(self, event):
+        config.set("Settings", "logo_type", self.logo_type_entry.get())
+
     def update_open_update_time(self):
         config.set("Settings", "open_update_time", str(self.open_update_time_var.get()))
 
@@ -521,9 +599,16 @@ class DefaultUI:
     def edit_blacklist_file(self):
         self.edit_file(constants.blacklist_path)
 
+    def edit_channel_alias_file(self):
+        self.edit_file(constants.alias_path)
+
+    def view_rtmp_stat(self):
+        webbrowser.open_new_tab("http://localhost:8080/stat")
+
     def change_entry_state(self, state):
         for entry in [
             "open_update_checkbutton",
+            "update_interval_entry",
             "open_service_checkbutton",
             "app_port_entry",
             "open_rtmp_checkbutton",
@@ -537,6 +622,8 @@ class DefaultUI:
             "source_file_edit_button",
             "time_zone_entry",
             "cdn_url_entry",
+            "logo_url_entry",
+            "logo_type_entry",
             "final_file_entry",
             "final_file_button",
             "final_file_edit_button",
@@ -551,5 +638,7 @@ class DefaultUI:
             "ipv6_support_checkbutton",
             "whitelist_file_button",
             "blacklist_file_button",
+            "channel_alias_file_button",
+            "rtmp_stat_button",
         ]:
             getattr(self, entry).config(state=state)
