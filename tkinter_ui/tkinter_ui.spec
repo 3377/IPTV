@@ -7,7 +7,7 @@ with open('version.json') as f:
     name = version_data['name']
 
 a = Analysis(
-    ['tkinter_ui.py', 'about.py', 'default.py', 'speed.py', 'prefer.py', 'local.py', 'multicast.py', 'hotel.py', 'subscribe.py', 'online_search.py', 'epg.py'],
+    ['tkinter_ui.py', 'about.py', 'default.py', 'speed.py', 'prefer.py', 'local.py', 'subscribe.py', 'epg.py'],
     pathex=[],
     binaries=[],
     datas=[
@@ -17,31 +17,25 @@ a = Analysis(
         ('../config/whitelist.txt', 'config'),
         ('../config/blacklist.txt', 'config'),
         ('../config/subscribe.txt', 'config'),
+        ('../config/epg.txt', 'config'),
+        ('../config/alias.txt', 'config'),
         ('../config/rtp', 'config/rtp'),
-        ('../updates/hotel/cache.pkl', 'updates/hotel'),
-        ('../updates/multicast/multicast_map.json', 'updates/multicast'),
-        ('../updates/multicast/cache.pkl', 'updates/multicast'),
+        ('../utils/ip_checker/data/qqwry.ipdb', 'utils/ip_checker/data'),
         ('../utils/nginx-rtmp-win32', 'utils/nginx-rtmp-win32'),
-        ('../static/images/favicon.ico', 'static/images'),
         ('../static/images/alipay.jpg', 'static/images'),
         ('../static/images/settings_icon.png', 'static/images'),
         ('../static/images/speed_icon.png', 'static/images'),
         ('../static/images/prefer_icon.png', 'static/images'),
         ('../static/images/local_icon.png', 'static/images'),
-        ('../static/images/hotel_icon.png', 'static/images'),
-        ('../static/images/multicast_icon.png', 'static/images'),
         ('../static/images/subscribe_icon.png', 'static/images'),
-        ('../static/images/online_search_icon.png', 'static/images'),
-        '../static/images/epg_icon.png', 'static/images'),
+        ('../static/images/epg_icon.png', 'static/images'),
+        ('../favicon.ico', '.'),
         ('about.py', '.'),
         ('default.py', '.'),
         ('speed.py', '.'),
         ('prefer.py', '.'),
         ('local.py', '.'),
-        ('multicast.py', '.'),
-        ('hotel.py', '.'),
         ('subscribe.py', '.'),
-        ('online_search.py', '.'),
         ('epg.py', '.'),
         ('select_combobox.py', '.'),
         ('../version.json', '.')
@@ -75,5 +69,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='../static/images/favicon.ico'
+    icon='../favicon.ico'
 )
