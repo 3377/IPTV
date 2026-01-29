@@ -1,4 +1,6 @@
 # 这是本地源列表，一行一个源，格式为：频道名称,接口地址
+# 如果有多个本地源文件，可以在config目录下创建local目录进行存放，支持txt/m3u文件格式
 # 支持设置白名单：接口后添加$!
 # The local source list, one line per source, format: channel name, interface address
 # Support setting whitelist: add $! after the interface
+# If there are multiple local source files, you can create a local directory under the config directory for storage, supporting txt/m3u file formats

@@ -3,6 +3,7 @@ import os.path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
+import utils.constants as constants
 from utils.config import config
 from utils.tools import resource_path
 
@@ -31,30 +32,11 @@ class LocalUI:
 
         frame_local_file = tk.Frame(root)
         frame_local_file.pack(fill=tk.X)
-        frame_local_file_column1 = tk.Frame(frame_local_file)
-        frame_local_file_column1.pack(side=tk.LEFT, fill=tk.Y)
-        frame_local_file_column2 = tk.Frame(frame_local_file)
-        frame_local_file_column2.pack(side=tk.LEFT, fill=tk.Y)
-
-        self.local_file_label = tk.Label(
-            frame_local_file_column1, text="本地源文件:", width=8
-        )
-        self.local_file_entry = tk.Entry(frame_local_file_column1)
-        self.local_file_label.pack(side=tk.LEFT, padx=4, pady=8)
-        self.local_file_entry.pack(fill=tk.X, padx=4, expand=True)
-        self.local_file_entry.insert(0, config.local_file)
-
-        self.local_file_button = tk.ttk.Button(
-            frame_local_file_column2,
-            text="选择文件",
-            command=self.select_local_file,
-        )
-        self.local_file_button.pack(side=tk.LEFT, padx=4, pady=0)
 
         self.local_file_edit_button = tk.ttk.Button(
-            frame_local_file_column2,
+            frame_local_file,
             text="编辑",
-            command=lambda: self.edit_file(config.local_file),
+            command=lambda: self.edit_file(constants.local_path),
         )
         self.local_file_edit_button.pack(side=tk.LEFT, padx=4, pady=0)
 

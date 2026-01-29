@@ -1,0 +1,121 @@
+name: Validate PRs and close invalid ones
+
+on:
+  pull_request_target:
+    types: [ opened, edited, reopened, synchronize ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.info('No pull request in context, exiting.');
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const number = pr.number;
+            const author = pr.user.login;
+            const repoOwner = 'Guovin';
+
+            const prInfo = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: number
+            });
+
+            const commits = prInfo.data.commits || 0;
+            const body = (prInfo.data.body || '').toLowerCase();
+
+            let page = 1;
+            let files = [];
+            while (true) {
+              const res = await github.rest.pulls.listFiles({
+                owner,
+                repo,
+                pull_number: number,
+                per_page: 100,
+                page
+              });
+              files = files.concat(res.data.map(f => f.filename));
+              if (res.data.length < 100) break;
+              page++;
+            }
+
+            const changedConfigOrOutput = files.some(f => f.startsWith('config/') || f.startsWith('output/'));
+            const isOwner = (author === repoOwner);
+            const hasCheckedBox = /\[x\]/i.test(body);
+
+            const invalidReasons = [];
+            if (commits === 0) invalidReasons.push('commits count is 0');
+            if (!hasCheckedBox) invalidReasons.push('PR template has no checked box (\\[x\\])');
+            if (changedConfigOrOutput && !isOwner) invalidReasons.push('modified files under config/ or output/ by non-owner');
+
+            if (invalidReasons.length === 0) {
+              core.info('PR looks valid.');
+              return;
+            }
+
+            const label = 'invalid';
+            try {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: number,
+                labels: [label]
+              });
+            } catch (e) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name: label,
+                  color: 'd73a4a',
+                  description: 'Automatically marked invalid PR'
+                });
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: number,
+                  labels: [label]
+                });
+              } catch (err) {
+                core.warning('Failed to create/add label: ' + err.message);
+              }
+            }
+
+            if (process.env.ALLOW_PR_COMMENT === 'true') {
+              const commentBody = `This PR has been automatically labeled as "invalid" and closed. Triggered rules:\n- ${invalidReasons.join('\n- ')}\n\nPlease consult the repository contribution guidelines before submitting a valid PR.`;
+              try {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: number,
+                  body: commentBody
+                });
+              } catch (e) {
+                core.warning('Failed to create comment: ' + e.message);
+              }
+            } else {
+              core.info('Skipping comment to avoid notifications (set ALLOW_PR_COMMENT=true to enable).');
+            }
+
+            await github.rest.pulls.update({
+              owner,
+              repo,
+              pull_number: number,
+              state: 'closed'
+            });
+
+            core.info('PR closed and labeled as invalid: ' + invalidReasons.join('; '));

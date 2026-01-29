@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 for file in /iptv-api-config/*; do
   filename=$(basename "$file")
@@ -8,28 +9,19 @@ for file in /iptv-api-config/*; do
   fi
 done
 
-. /.venv/bin/activate
+. $APP_WORKDIR/.venv/bin/activate
 
-crontab -d
+: "${APP_PORT:=$APP_PORT}"
+: "${NGINX_HTTP_PORT:=$NGINX_HTTP_PORT}"
+: "${NGINX_RTMP_PORT:=$NGINX_RTMP_PORT}"
 
-if [ -n "$UPDATE_CRON" ]; then
-  echo "$UPDATE_CRON cd $APP_WORKDIR && /.venv/bin/python main.py" | crontab -
-fi
-
-# dcron log level
-# LOG_EMERG	0	[* system is unusable *]
-# LOG_ALERT	1	[* action must be taken immediately *]
-# LOG_CRIT	2	[* critical conditions *]
-# LOG_ERR	3	[* error conditions *]
-# LOG_WARNING	4	[* warning conditions *]
-# LOG_NOTICE	5	[* normal but significant condition *]
-# LOG_INFO	6	[* informational *]
-# LOG_DEBUG	7	[* debug-level messages *]
-
-/usr/sbin/crond -b -L /tmp/dcron.log -l 4 &
+sed -e "s/\${APP_PORT}/${APP_PORT}/g" \
+    -e "s/\${NGINX_HTTP_PORT}/${NGINX_HTTP_PORT}/g" \
+    -e "s/\${NGINX_RTMP_PORT}/${NGINX_RTMP_PORT}/g" \
+    /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
 nginx -g 'daemon off;' &
 
 python $APP_WORKDIR/main.py &
 
-python -m gunicorn service.app:app -b 0.0.0.0:$APP_PORT --timeout=1000
+python -m gunicorn service.app:app -b 127.0.0.1:$APP_PORT --timeout=1000
