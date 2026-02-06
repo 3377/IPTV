@@ -12,6 +12,7 @@ from tqdm.asyncio import tqdm_asyncio
 import utils.constants as constants
 from utils.channel import format_channel_name
 from utils.config import config
+from utils.i18n import t
 from utils.retry import retry_func
 from utils.tools import get_pbar_remaining, get_urls_from_file, opencc_t2s, join_url
 
@@ -53,13 +54,15 @@ def parse_epg(epg_content):
 
 async def get_epg(names=None, callback=None):
     urls = get_urls_from_file(constants.epg_path)
+    if not urls:
+        return {}
     if not os.getenv("GITHUB_ACTIONS") and config.cdn_url:
         urls = [join_url(config.cdn_url, url) if "raw.githubusercontent.com" in url else url
                 for url in urls]
     urls_len = len(urls)
     pbar = tqdm_asyncio(
         total=urls_len,
-        desc=f"Processing epg",
+        desc=t("pbar.getting_name").format(name=t("name.epg")),
     )
     start_time = time()
     result = defaultdict(list)
@@ -80,7 +83,7 @@ async def get_epg(names=None, callback=None):
                     )
                 )
             except exceptions.Timeout:
-                print(f"Timeout on epg: {url}")
+                print(t("msg.request_timeout").format(name=url))
             if response:
                 response.encoding = "utf-8"
                 content = response.text
@@ -96,13 +99,16 @@ async def get_epg(names=None, callback=None):
                             all_result_verify.add(display_name)
                             result[display_name] = programmes[channel_id]
         except Exception as e:
-            print(f"Error on {url}: {e}")
+            print(t("msg.error_name_info").format(name=url, info=e))
         finally:
             pbar.update()
-            remain = urls_len - pbar.n
             if callback:
                 callback(
-                    f"正在获取EPG源, 剩余{remain}个源待获取, 预计剩余时间: {get_pbar_remaining(n=pbar.n, total=pbar.total, start_time=start_time)}",
+                    t("msg.progress_desc").format(name=f"{t("pbar.get")}{t("name.epg")}",
+                                                  remaining_total=urls_len - pbar.n,
+                                                  item_name=t("pbar.source"),
+                                                  remaining_time=get_pbar_remaining(n=pbar.n, total=pbar.total,
+                                                                                    start_time=start_time)),
                     int((pbar.n / urls_len) * 100),
                 )
 

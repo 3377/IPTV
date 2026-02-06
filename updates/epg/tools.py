@@ -1,4 +1,5 @@
 import gzip
+import os
 import shutil
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -15,6 +16,8 @@ def write_to_xml(programmes, path):
             prog.set('channel', channel_id)
             root.append(prog)
 
+    target_dir = os.path.dirname(path)
+    os.makedirs(target_dir, exist_ok=True)
     with open(path, 'w', encoding='utf-8') as f:
         f.write(minidom.parseString(ET.tostring(root, 'utf-8')).toprettyxml(indent='\t', newl='\n'))
 
