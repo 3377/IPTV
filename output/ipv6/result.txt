@@ -1,5 +1,5 @@
 🕘️更新时间,#genre#
-2026-08-12 19:18:01,http://php.jdshipin.com:8880/TVOD/iptv.php?id=rthk33
+2026-08-13 07:01:47,http://php.jdshipin.com:8880/TVOD/iptv.php?id=rthk33
 
 📺央视频道,#genre#
 CCTV-1,http://php.jdshipin.com:8880/TVOD/iptv.php?id=rthk33
@@ -586,6 +586,7 @@ CETV4,http://gslbmgsplive.miguvideo.com/migu/kailu/cetv4/50/20240709/index.m3u8?
 广州综合,https://live.iill.top/gztv/zhonghe
 广州综合,https://live.lalifeier.eu.org/gztv/zhonghe.m3u8?t=1743040305&key=9b8c0f43fde1e08e18b3c6bf6363710c
 广州综合,https://tv.iill.top/gztv/zhonghe
+广州综合,http://r.jdshipin.com/iR6Gq
 广州影视,http://php.jdshipin.com:8880/gztv.php?id=yingshi#https://tencentplay.gztv.com/live/yingshi.m3u8?txSecret=7e9bddad7c8911626ed1d2c09fc605d9&txTime=18d00acf487
 广州影视,https://live.lalifeier.eu.org/gztv/yingshi.m3u8?t=1745774515&key=1582833445aee08df286b7097e95e7a1
 广州影视,https://tv.iill.top/gztv/yingshi
